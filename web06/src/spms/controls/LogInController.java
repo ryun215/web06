@@ -8,6 +8,14 @@ import spms.dao.MemberDao;
 import spms.vo.Member;
 
 public class LogInController implements Controller {
+	 private MemberDao memberDao;
+	  
+	  //dao주입을 위한 set메소드
+	  public LogInController setMemberDao(MemberDao memberDao){
+		  this.memberDao = memberDao;
+		return this;	  
+	  }
+	
   @Override
   public String execute(Map<String, Object> model) throws Exception {
     if (model.get("loginInfo") == null) { // 입력폼을 요청할 때
@@ -16,7 +24,7 @@ public class LogInController implements Controller {
       
     } else { // 회원 등록을 요청할 때
     	System.out.println("회원등록요청");
-      MemberDao memberDao = (MemberDao)model.get("memberDao"); 
+     
       Member loginInfo = (Member)model.get("loginInfo");
       System.out.println("loginInfo.getEmail :" +loginInfo.getEmail());
       System.out.println("loginInfo.getPassword :" +loginInfo.getPassword());

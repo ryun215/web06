@@ -6,11 +6,17 @@ import spms.dao.MemberDao;
 import spms.vo.Member;
 
 public class MemberUpdateController implements Controller {
+	 private MemberDao memberDao;
+	  
+	  //dao주입을 위한 set메소드
+	  public MemberUpdateController setMemberDao(MemberDao memberDao){
+		  this.memberDao = memberDao;
+		return this;	  
+	  }
   @Override
   public String execute(Map<String, Object> model) throws Exception {
 	  System.out.println("memberUpdateController execute 메소드 호출");
-    MemberDao memberDao = (MemberDao)model.get("memberDao");
-    
+   
     if (model.get("member") == null) { 
     	System.out.println("모델에 담긴 member가 null일때");
       Integer no = (Integer)model.get("no");

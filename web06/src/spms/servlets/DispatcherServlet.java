@@ -13,36 +13,34 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import spms.controls.Controller;
-import spms.controls.LogInController;
-import spms.controls.LogOutController;
-import spms.controls.MemberAddController;
-import spms.controls.MemberDeleteController;
-import spms.controls.MemberListController;
-import spms.controls.MemberUpdateController;
 import spms.vo.Member;
 
 @SuppressWarnings("serial")
 @WebServlet("*.do")
 public class DispatcherServlet extends HttpServlet {
+	
   @Override
   protected void service(
       HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     response.setContentType("text/html; charset=UTF-8");
     String servletPath = request.getServletPath();
+    System.out.println("DispatcherServlet에 *.do 요청 발생");
     try {
-    
-    	Controller controller = null;
+    	ServletContext sc = this.getServletContext();
+    	Controller controller = (Controller) sc.getAttribute(servletPath);;
     	Map<String, Object> model = new HashMap<String,Object>();
     	//model안에 memberDao주입
-    	ServletContext sc = this.getServletContext();
-    	model.put("memberDao", sc.getAttribute("memberDao"));
     	
+    	// sc에 controller가 dao를 주입받으므로 모든model에 dao주입필요 x
+    	// model.put("memberDao", sc.getAttribute("memberDao"));
     	
       if ("/member/list.do".equals(servletPath)) {
-       controller = new MemberListController();
+    	  	System.out.println("/member/list.do 요청발생");
+    	// frontController에 대한 의존도가 떨어짐
+    
       } else if ("/member/add.do".equals(servletPath)) {
-       controller = new MemberAddController();
+    	 
         if (request.getParameter("email") != null) {
           model.put("member", new Member()
             .setEmail(request.getParameter("email"))
@@ -50,13 +48,12 @@ public class DispatcherServlet extends HttpServlet {
             .setName(request.getParameter("name")));
         }
       } else if ("/member/update.do".equals(servletPath)) {
-    	  System.out.println("업데이트");
-    	  controller = new MemberUpdateController();
+    	System.out.println("업데이트");
        	System.out.println("리퀘스트에 담긴 no값 :"+request.getParameter("no"));
        	System.out.println("리퀘스트에 담긴 email값 :"+request.getParameter("email"));
        	System.out.println("리퀘스트에 담긴 name값 :"+request.getParameter("name"));
         if (request.getParameter("email") != null) {
-        	System.out.println("email이 null이 아닐때");
+        System.out.println("email이 null이 아닐때");
           model.put("member", new Member()
             .setNo(Integer.parseInt(request.getParameter("no")))
             .setEmail(request.getParameter("email"))
@@ -68,14 +65,13 @@ public class DispatcherServlet extends HttpServlet {
         }
        
       } else if ("/member/delete.do".equals(servletPath)) {
-        controller = new MemberDeleteController();
         int no = Integer.parseInt(request.getParameter("no"));
     	model.put("no", no);
         
         
       } else if ("/auth/login.do".equals(servletPath)) {
     	  System.out.println("로그인.do 요청");
-        controller = new LogInController();
+      
        
         if(request.getParameter("email")!=null && request.getParameter("password")!=null){
         	String email = request.getParameter("email");
@@ -86,13 +82,9 @@ public class DispatcherServlet extends HttpServlet {
             model.put("loginInfo", new Member().setEmail(email).setPassword(password));
             model.put("session", request.getSession());
         }else{
-        	
         }
         
-        
-        
       } else if ("/auth/logout.do".equals(servletPath)) {
-    	  controller = new LogOutController();
     	  model.put("session", request.getSession());
     	 
       }
